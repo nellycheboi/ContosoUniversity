@@ -1,0 +1,103 @@
+﻿@model ContosoUniversity.Models.Instructor
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Instructor</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ID)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FirstMidName, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.FirstMidName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.FirstMidName, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.HireDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.HireDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.HireDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.OfficeAssignment.Location, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.OfficeAssignment.Location)
+                @Html.ValidationMessageFor(model => model.OfficeAssignment.Location)
+            </div>
+        </div>
+        @*After you paste the code, if line breaks and indentation don't look like they do here, manually fix everything so that it looks like what you see here. The indentation doesn't have to be perfect, but the @</tr><tr>, @:<td>, @:</td>, and @</tr> lines must each be on a single line as shown or you'll get a runtime error.+
+This code creates an HTML table that has three columns. In each column is a check box followed by a caption that consists of the course number and title.The check boxes all have the same name("selectedCourses"), which informs the model binder that they are to be treated as a group.The value attribute of each check box is set to the value of CourseID. When the page is posted, the model binder passes an array to the controller that consists of the CourseID values for only the check boxes which are selected.
+When the check boxes are initially rendered, those that are for courses assigned to the instructor have checked attributes, which selects them(displays them checked).
+After changing course assignments, you'll want to be able to verify the changes when the site returns to the Index page. Therefore, you need to add a column to the table in that page. In this case you don't need to use the ViewBag object, because the information you want to display is already in the Courses navigation property of the Instructor entity that you're passing to the page as the model.*@
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <table>
+                    <tr>
+                        @{
+                            int cnt = 0;
+                            List<ContosoUniversity.ViewModels.AssignedCourseData> courses = ViewBag.Courses;
+
+                            foreach (var course in courses)
+                            {
+                                if (cnt++ % 3 == 0)
+                                {
+                                    @:</tr><tr>
+
+                                }
+                                @:<td>
+                                
+                                    <input type="checkbox"
+                                           name="selectedCourses"
+                                           value="@course.CourseID"
+                                           @(Html.Raw(course.Assigned ? "checked=\"checked\"" : "")) />
+                                        @course.CourseID @:  @course.Title
+
+
+                                        @: </td>
+                                   
+                                }
+
+    @:</tr>
+
+                            }
+                    </table>
+                </div>
+            </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -20,11 +20,32 @@ namespace ContosoUniversity.DAL
         // The Entity Framework would include them implicitly because the Student entity references the Enrollment entity and the Enrollment entity references the Course entity.
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Course> Courses { get; set; }
+        public DbSet<Instructor> Instructors { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
 
         // he pluralized forms of entity class names to be used as table names.
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Conventions.Add<PluralizingTableNameConvention>();
+            // For the many-to-many relationship between the Instructor and Course entities, the code specifies the table and column names for the join table. Code First can configure the many-to-many relationship for you without this code, but if you don't call it, you will get default names such as InstructorInstructorID for the InstructorID column.
+
+            // Checkout https://blogs.msdn.microsoft.com/aspnetue/2011/05/04/entity-framework-code-first-tutorial-supplement-what-is-going-on-in-a-fluent-api-call/
+            modelBuilder.Entity<Course>()
+             .HasMany(c => c.Instructors).WithMany(i => i.Courses)
+             .Map(t => t.MapLeftKey("ID")
+                 .MapRightKey("InstructorID")
+                 .ToTable("CourseInstructor"));
+
+
+            modelBuilder.Entity<Instructor>()
+                .HasOptional(p => p.OfficeAssignment).WithRequired(p => p.Instructor);
+            modelBuilder.Entity<Department>().MapToStoredProcedures();
+
+            //If you prefer to use the fluent API you can use the IsConcurrencyToken method to specify the tracking property
+            modelBuilder.Entity<Department>()
+            .Property(p => p.RowVersion).IsConcurrencyToken();
         }
     }
+
 }

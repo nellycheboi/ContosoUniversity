@@ -22,6 +22,10 @@ namespace ContosoUniversity.Tests.DAL
         /// <summary>
         /// overrides the ReaderExecuting method, which is called for queries that can return multiple rows of data.
         /// The value you enter in the Search box will be in command.Parameters[0] and command.Parameters[1] (one is used for the first name and one for the last name). When the value "%Throw%" is found, "Throw" is replaced in those parameters by "an" so that some students will be found and returned.
+        /// 
+        /// You've written the transient error simulation code in a way that lets you cause transient errors by entering a different value in the UI. As an alternative, you could write the interceptor code to always generate the sequence of transient exceptions without checking for a particular parameter value. You could then add the interceptor only when you want to generate transient errors. If you do this, however, don't add the interceptor until after database initialization has completed. In other words, do at least one database operation such as a query on one of your entity sets before you start generating transient errors. The Entity Framework executes several queries during database initialization, and they aren't executed in a transaction, so errors during initialization could cause the context to get into an inconsistent state.
+        /// 
+        /// You'll notice that the browser seems to hang for several seconds while Entity Framework is retrying the query several times. The first retry happens very quickly, then the wait before increases before each additional retry. This process of waiting longer before each retry is called exponential backoff.
         /// </summary>
         /// <param name="command"></param>
         /// <param name="interceptionContext"></param>
