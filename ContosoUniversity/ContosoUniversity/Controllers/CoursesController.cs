@@ -17,10 +17,20 @@ namespace ContosoUniversity.Controllers
         private SchoolDBContext db = new SchoolDBContext();
 
         // GET: Courses
-        public ActionResult Index()
+        public ActionResult Index(int? SelectedDepartment)
         {
             // The automatic scaffolding has specified eager loading for the Department navigation property by using the Include method.
-            var courses = db.Courses.Include(c => c.Department);
+            //var courses = db.Courses.Include(c => c.Department);
+            //return View(courses.ToList());
+            var departments = db.Departments.OrderBy(q => q.Name).ToList();
+            ViewBag.SelectedDepartment = new SelectList(departments, "DepartmentID", "Name", SelectedDepartment);
+            int departmentID = SelectedDepartment.GetValueOrDefault();
+
+            IQueryable<Course> courses = db.Courses
+                .Where(c => !SelectedDepartment.HasValue || c.DepartmentID == departmentID)
+                .OrderBy(d => d.ID)
+                .Include(d => d.Department);
+            var sql = courses.ToString();
             return View(courses.ToList());
         }
 
@@ -151,7 +161,29 @@ namespace ContosoUniversity.Controllers
             db.SaveChanges();
             return RedirectToAction("Index");
         }
+        /// <summary>
+        /// Suppose Contoso University administrators want to be able to perform bulk changes in the database, such as changing the number of credits for every course. If the university has a large number of courses, it would be inefficient to retrieve them all as entities and change them individually. In this section you'll implement a web page that enables the user to specify a factor by which to change the number of credits for all courses, and you'll make the change by executing a SQL UPDATE statement. The web page will look like the following illustration:
+        /// https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/advanced-entity-framework-scenarios-for-an-mvc-web-application
+        /// 
+        /// Use the DbSet.SqlQuery method for queries that return entity types. The returned objects must be of the type expected by the DbSet object, and they are automatically tracked by the database context unless you turn tracking off. (See the following section about the AsNoTracking method.)
+       /// Use the Database.SqlQuery method for queries that return types that aren't entities. The returned data isn't tracked by the database context, even if you use this method to retrieve entity types.
+       /// Use the Database.ExecuteSqlCommand for non-query commands.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult UpdateCourseCredits()
+        {
+            return View();
+        }
 
+        [HttpPost]
+        public ActionResult UpdateCourseCredits(int? multiplier)
+        {
+            if (multiplier != null)
+            {
+                ViewBag.RowsAffected = db.Database.ExecuteSqlCommand("UPDATE Courses SET Credits = Credits * {0}", multiplier);
+            }
+            return View();
+        }
         protected override void Dispose(bool disposing)
         {
             if (disposing)

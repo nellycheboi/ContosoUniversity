@@ -49,7 +49,13 @@ namespace ContosoUniversity.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             // In the Details method and the HttpGet Edit and Delete methods, the Find method is the one that causes a query to be sent to the database, so that's the method that gets executed asynchronously:
-            Department department = await db.Departments.FindAsync(id);
+            // Commenting out original code to show how to use a raw SQL query.
+            //Department department = await db.Departments.FindAsync(id);
+
+            // Create and execute raw SQL query.
+            string query = "SELECT * FROM Department WHERE DepartmentID = @p0";
+            Department department = await db.Departments.SqlQuery(query, id).SingleOrDefaultAsync();
+
             if (department == null)
             {
                 return HttpNotFound();
@@ -200,6 +206,8 @@ namespace ContosoUniversity.Controllers
         /// For the Delete page, the Entity Framework detects concurrency conflicts caused by someone else editing the department in a similar manner. When the HttpGet Delete method displays the confirmation view, the view includes the original RowVersion value in a hidden field. That value is then available to the HttpPost Delete method that's called when the user confirms the deletion. When the Entity Framework creates the SQL DELETE command, it includes a WHERE clause with the original RowVersion value. If the command results in zero rows affected (meaning the row was changed after the Delete confirmation page was displayed), a concurrency exception is thrown, and the HttpGet Delete method is called with an error flag set to true in order to redisplay the confirmation page with an error message. It's also possible that zero rows were affected because the row was deleted by another user, so in that case a different error message is displayed.
         /// 
         /// The method accepts an optional parameter that indicates whether the page is being redisplayed after a concurrency error. If this flag is true, an error message is sent to the view using a ViewBag property.
+        /// 
+        /// https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/handling-concurrency-with-the-entity-framework-in-an-asp-net-mvc-application#updating-the-delete-page
         /// </summary>
         /// <param name="id"></param>
         /// <param name="concurrencyError"></param>

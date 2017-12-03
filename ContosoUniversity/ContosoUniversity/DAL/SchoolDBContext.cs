@@ -24,6 +24,8 @@ namespace ContosoUniversity.DAL
         public DbSet<Department> Departments { get; set; }
         public DbSet<OfficeAssignment> OfficeAssignments { get; set; }
 
+        // This is all that the Entity Framework needs in order to configure table-per-hierarchy inheritance. As you'll see, when the database is updated, it will have a Person table in place of the Student and Instructor tables.
+        public DbSet<Person> People { get; set; }
         // he pluralized forms of entity class names to be used as table names.
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

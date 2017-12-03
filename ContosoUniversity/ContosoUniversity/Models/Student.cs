@@ -7,20 +7,11 @@ using System.Web;
 
 namespace ContosoUniversity.Models
 {
-    public class Student
+    public class Student : Person
     {
-        public int ID { get; set; }
 
-        [Required]
-        [StringLength(50, MinimumLength = 1)]
-        [Display(Name = "Last Name")]
-        public string LastName { get; set; }
 
-        [Required]
-        [StringLength(50,MinimumLength = 1, ErrorMessage = "First name cannot be longer than 50 characters.")]
-        [Column("FirstName")]
-        [Display(Name = "First Name")]
-        public string FirstMidName { get; set; }
+     
 
         /// <summary>
         /// The DataType attribute is used to specify a data type that is more specific than the database intrinsic type. In this case we only want to keep track of the date, not the date and time
